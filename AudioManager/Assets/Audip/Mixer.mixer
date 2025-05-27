@@ -293,6 +293,7 @@ AudioMixerSnapshotController:
     1dfcaf20c6b0f409d8ea7150b8b1e634: 2.94
     1d8086411ac0e49689baaf3a3054c2db: 0.04171297
     14b5dd425df574f328a792a1769bfdb6: -1
+    fb912fd4e018e481eb9ea859f0e7aff4: 3.2656894
     5fcb0075ee1874b2398ff8f1a987fd15: -0
     42bb17f76486945ccb510170112fb010: -0.02577656
     65c9ccf73f03348a59f7e6ef7de47808: -0
@@ -377,7 +378,7 @@ AudioMixerGroupController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Ambience
+  m_Name: Ambiance
   m_AudioMixer: {fileID: 24100000}
   m_GroupID: 93c25c6f1f761482e8d0dace2831e625
   m_Children: []

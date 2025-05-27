@@ -12,6 +12,7 @@ namespace AudioScripts
             
         public void PlaySound()
         {
+            Debug.Log("Emit.");
             pos = transform.position;
             AudioManager.Instance.PlaySFX(clip, pos, sourceParams);
         }

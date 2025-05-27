@@ -12,13 +12,24 @@ namespace AudioScripts
         [SerializeField] private float volume = 1f;
         [SerializeField] private float maxDistance = 50f;
         [SerializeField] private SourceParams sourceParams;
-
+        private AudioSource source;
 
         private void Start()
         {
             WaitForPlayerAndPlay();
             colliderVolume = GetComponent<Collider>();
             instance = AudioManager.Instance;
+        }
+
+        private void Update()
+        {
+            if (source == null)
+                return;
+            if (source.maxDistance < Vector3.Distance(player.transform.position, source.transform.position))
+            {
+                sourceParams.ApplyTo(source);
+                source.enabled = true;
+            }
         }
 
         private async void WaitForPlayerAndPlay()
@@ -30,8 +41,8 @@ namespace AudioScripts
                 await System.Threading.Tasks.Task.Yield(); // Wait for the next frame
             }
 
-            StartCoroutine(instance.SourceFollow(
-                instance.PlaySFXLooping(ambianceClip, transform.position, sourceParams),
+            source = instance.PlaySFX(ambianceClip, transform.position, sourceParams, true);
+            StartCoroutine(instance.SourceFollow(source,
                 () =>
                 {
                     var closestPoint = colliderVolume.ClosestPoint(player.transform.position);

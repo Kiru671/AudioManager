@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -14,6 +15,7 @@ namespace AudioScripts
         [SerializeField] private BeatManager beatManager;
         [SerializeField] private SourceParams defaultSFXParams;
         [SerializeField] private SourceParams[] defaultMusicParams;
+        [SerializeField] private List<AudioSource> activeSources;
 
         private void Awake()
         {
@@ -25,52 +27,30 @@ namespace AudioScripts
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            activeSources  = new List<AudioSource>();
         }
 
-        public void PlaySFX(AudioClip clip, Vector3 position)
+        public AudioSource PlaySFX(AudioClip clip, Vector3 position, bool loop = false)
         {
             var source = audioSourcePool.GetAvailableSource();
             source.transform.position = position;
             source.clip = clip;
+            source.loop = loop;
             source.Play();
+            if (!activeSources.Contains(source))
+                activeSources.Add(source);
+            return source;
         }
         
-        public void PlaySFX(AudioClip clip, Vector3 position, SourceParams sourceParams)
+        public AudioSource PlaySFX(AudioClip clip, Vector3 position, SourceParams sourceParams, bool loop = false)
         {
             var source = AttachParams(audioSourcePool.GetAvailableSource(), sourceParams);
             source.transform.position = position;
             source.clip = clip;
+            source.loop = loop;
             source.Play();
-        }
-        
-        public AudioSource PlaySFXLooping(AudioClip clip, Vector3 position)
-        {
-            var source = audioSourcePool.GetAvailableSource();
-            source.transform.position = position;
-            source.clip = clip;
-            source.loop = true;
-            source.Play();
-            return source;
-        }
-        
-        public AudioSource PlaySFXLooping(AudioClip clip, Vector3 position, float volume)
-        {
-            var source = audioSourcePool.GetAvailableSource();
-            source.transform.position = position;
-            source.clip = clip;
-            source.volume = volume;
-            source.loop = true;
-            source.Play();
-            return source;
-        }
-        
-        public AudioSource PlaySFXLooping(AudioClip clip, Vector3 position, SourceParams sourceParams)
-        {
-            var source = AttachParams(audioSourcePool.GetAvailableSource(), sourceParams);
-            source.transform.position = position;
-            source.clip = clip;
-            source.loop = true;
-            source.Play();
+            if (!activeSources.Contains(source))
+                activeSources.Add(source);
             return source;
         }
 
@@ -123,7 +103,6 @@ namespace AudioScripts
         public void StopAllSFX()
         {
             audioSourcePool.StopAll();
-            musicLayerController.Stop();
         }
         
         public void StopWithFade(AudioSource source, float fadeTime = 1f)
@@ -144,7 +123,7 @@ namespace AudioScripts
 
             source.Stop();
             source.loop = false;
-            source.gameObject.SetActive(false);
+            audioSourcePool.ReleaseSource(source);
         }
         
         public IEnumerator SourceFollow(AudioSource source, System.Func<Vector3> getTargetPosition)
@@ -155,17 +134,30 @@ namespace AudioScripts
                 yield return null;
             }
         }
+        
+        IEnumerator MonitorSources()
+        {
+            var wait = new WaitForSeconds(1f); // Check once per second
+            while (true)
+            {
+                for (int i = activeSources.Count - 1; i >= 0; i--)
+                {
+                    var src = activeSources[i];
+
+                    // Remove non-looping SFX that have finished playing
+                    if (!src.loop && !src.isPlaying)
+                    {
+                        audioSourcePool.ReleaseSource(src);
+                        activeSources.RemoveAt(i);
+                    }
+                }
+                yield return wait;
+            }
+        }
 
         private AudioSource AttachParams(AudioSource src, SourceParams sourceParams)
         {
-            src.volume = sourceParams.volume;
-            src.pitch = sourceParams.pitch;
-            src.spatialBlend = sourceParams.spatialBlend;
-            src.maxDistance = sourceParams.maxDistance;
-            src.dopplerLevel = sourceParams.dopplerLevel;
-            src.outputAudioMixerGroup = sourceParams.outputAudioMixerGroup;
-            src.rolloffMode = sourceParams.outputAudioRolloffMode;
-            src.playOnAwake = sourceParams.playOnAwake;
+            sourceParams.ApplyTo(src);
             return src;
         }
     }
