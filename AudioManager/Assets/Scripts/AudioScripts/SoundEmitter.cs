@@ -6,15 +6,13 @@ namespace AudioScripts
 {
     public class SoundEmitter : MonoBehaviour
     {
-        [SerializeField] private AudioClip clip;
-        [SerializeField] private SourceParams sourceParams;
+        [SerializeField] private SoundData[] sdata;
         private Vector3 pos;
             
         public void PlaySound()
         {
-            Debug.Log("Emit.");
             pos = transform.position;
-            AudioManager.Instance.PlaySFX(clip, pos, sourceParams);
+            AudioManager.Instance.PlaySFX(sdata[0], pos);
         }
     }
 }

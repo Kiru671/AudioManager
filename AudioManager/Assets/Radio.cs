@@ -5,21 +5,13 @@ using UnityEngine;
 
 public class Radio : MonoBehaviour
 {
-    [SerializeField] private AudioClip[] clips;
-    [SerializeField] private SourceParams sourceParams;
+    [SerializeField] private SoundData[] sdata;
     
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.P))
         {
-            AudioManager.Instance.PlayRandom(clips, transform.position,sourceParams);
+            AudioManager.Instance.PlayRandom(sdata, transform.position);
         }
     }
 }

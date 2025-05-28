@@ -241,8 +241,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3209280dab2014afc99b6a6edd95f324, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clip: {fileID: 8300000, guid: 5f3d3c6db36b2428180b64d8ea1f32c4, type: 3}
-  sourceParams: {fileID: 11400000, guid: 4a4b27f4d83ac4f68a8e1ce141a20595, type: 2}
+  sdata:
+  - clip: {fileID: 8300000, guid: 5f3d3c6db36b2428180b64d8ea1f32c4, type: 3}
+    sourceParams: {fileID: 11400000, guid: 4a4b27f4d83ac4f68a8e1ce141a20595, type: 2}
 --- !u!114 &253578640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -474,11 +475,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 434ac6b125406400fbd8528aa8eea1d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clips:
-  - {fileID: 8300000, guid: c212aa2d646dfe248b7c96b4f0e4cb27, type: 3}
-  - {fileID: 8300000, guid: 6bb2130d030e9ae4e816a0887341d766, type: 3}
-  - {fileID: 8300000, guid: 3efdd4c11a4bdc54a9087ab115c1de9e, type: 3}
-  sourceParams: {fileID: 11400000, guid: ca24923323b4a4255b6c01cf40596947, type: 2}
+  sdata:
+  - clip: {fileID: 8300000, guid: 3efdd4c11a4bdc54a9087ab115c1de9e, type: 3}
+    sourceParams: {fileID: 11400000, guid: ca24923323b4a4255b6c01cf40596947, type: 2}
+  - clip: {fileID: 8300000, guid: c212aa2d646dfe248b7c96b4f0e4cb27, type: 3}
+    sourceParams: {fileID: 11400000, guid: ca24923323b4a4255b6c01cf40596947, type: 2}
+  - clip: {fileID: 8300000, guid: 6bb2130d030e9ae4e816a0887341d766, type: 3}
+    sourceParams: {fileID: 11400000, guid: ca24923323b4a4255b6c01cf40596947, type: 2}
 --- !u!136 &854614963
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -686,8 +689,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3209280dab2014afc99b6a6edd95f324, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clip: {fileID: 8300000, guid: 4d24b25cb175a484f992ee2cce963835, type: 3}
-  sourceParams: {fileID: 11400000, guid: 472948dc7d774460f9c0b7db8a44ddd3, type: 2}
+  sdata:
+  - clip: {fileID: 8300000, guid: 4d24b25cb175a484f992ee2cce963835, type: 3}
+    sourceParams: {fileID: 11400000, guid: 472948dc7d774460f9c0b7db8a44ddd3, type: 2}
 --- !u!114 &1190124640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1203,8 +1207,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3209280dab2014afc99b6a6edd95f324, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clip: {fileID: 8300000, guid: c8ecc63acb8374ee38c73553e775553f, type: 3}
-  sourceParams: {fileID: 11400000, guid: 4a4b27f4d83ac4f68a8e1ce141a20595, type: 2}
+  sdata:
+  - clip: {fileID: 8300000, guid: c8ecc63acb8374ee38c73553e775553f, type: 3}
+    sourceParams: {fileID: 11400000, guid: 4a4b27f4d83ac4f68a8e1ce141a20595, type: 2}
 --- !u!114 &1906969612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1337,10 +1342,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cae8930b5204e4969bba0c90a5bb760d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ambianceClip: {fileID: 8300000, guid: 7ef7fe83a644a4634a0bfc387f914626, type: 3}
-  volume: 0.5
-  maxDistance: 50
-  sourceParams: {fileID: 11400000, guid: 5f2d506cfc3d74908bdfbb738ccaf082, type: 2}
+  sdata:
+    clip: {fileID: 8300000, guid: 7ef7fe83a644a4634a0bfc387f914626, type: 3}
+    sourceParams: {fileID: 11400000, guid: 5f2d506cfc3d74908bdfbb738ccaf082, type: 2}
 --- !u!1 &2045260488
 GameObject:
   m_ObjectHideFlags: 0
@@ -1459,10 +1463,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cae8930b5204e4969bba0c90a5bb760d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ambianceClip: {fileID: 8300000, guid: 80eac8bd3c32a4ef9a44300ba5071e30, type: 3}
-  volume: 0.5
-  maxDistance: 50
-  sourceParams: {fileID: 11400000, guid: 5f2d506cfc3d74908bdfbb738ccaf082, type: 2}
+  sdata:
+    clip: {fileID: 8300000, guid: 80eac8bd3c32a4ef9a44300ba5071e30, type: 3}
+    sourceParams: {fileID: 11400000, guid: 5f2d506cfc3d74908bdfbb738ccaf082, type: 2}
 --- !u!1 &2108281755
 GameObject:
   m_ObjectHideFlags: 0

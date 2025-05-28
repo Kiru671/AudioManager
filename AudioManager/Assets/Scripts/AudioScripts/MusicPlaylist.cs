@@ -6,7 +6,7 @@ namespace AudioScripts
 {
     public class MusicPlaylist : MonoBehaviour
     {
-        [SerializeField] private MusicTrack[] tracks;
+        [SerializeField] public MusicTrack[] tracks;
         [HideInInspector] public MusicTrack currentTrack;
         [Tooltip("Order is wholeTrack, percussion, bass, melody, other")]
         [SerializeField] private SourceParams[] musicParamaters = new SourceParams[5];

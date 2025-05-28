@@ -8,12 +8,10 @@ namespace AudioScripts
         private GameObject player;
         private Collider colliderVolume;
         private AudioManager instance;
-        [SerializeField] private AudioClip ambianceClip;
-        [SerializeField] private float volume = 1f;
-        [SerializeField] private float maxDistance = 50f;
-        [SerializeField] private SourceParams sourceParams;
         private AudioSource source;
-
+        
+        [SerializeField] SoundData sdata;
+        
         private void Start()
         {
             WaitForPlayerAndPlay();
@@ -25,11 +23,7 @@ namespace AudioScripts
         {
             if (source == null)
                 return;
-            if (source.maxDistance < Vector3.Distance(player.transform.position, source.transform.position))
-            {
-                sourceParams.ApplyTo(source);
-                source.enabled = true;
-            }
+            ReEnableOnPlayerClose();
         }
 
         private async void WaitForPlayerAndPlay()
@@ -41,13 +35,22 @@ namespace AudioScripts
                 await System.Threading.Tasks.Task.Yield(); // Wait for the next frame
             }
 
-            source = instance.PlaySFX(ambianceClip, transform.position, sourceParams, true);
+            source = instance.PlaySFX(sdata, transform.position, true);
             StartCoroutine(instance.SourceFollow(source,
                 () =>
                 {
                     var closestPoint = colliderVolume.ClosestPoint(player.transform.position);
                     return new Vector3(closestPoint.x, closestPoint.y, closestPoint.z);
                 }));
+        }
+
+        private void ReEnableOnPlayerClose()
+        {
+            if (source.maxDistance < Vector3.Distance(player.transform.position, source.transform.position))
+            {
+                sdata.sourceParams.ApplyTo(source);
+                source.enabled = true;
+            }
         }
     }
 }

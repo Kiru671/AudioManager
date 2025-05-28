@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace AudioScripts
 {
@@ -30,23 +32,12 @@ namespace AudioScripts
             activeSources  = new List<AudioSource>();
         }
 
-        public AudioSource PlaySFX(AudioClip clip, Vector3 position, bool loop = false)
+        public AudioSource PlaySFX(SoundData sdata, Vector3 position, bool loop = false)
         {
             var source = audioSourcePool.GetAvailableSource();
+            AttachParams(source, sdata.sourceParams ?? defaultSFXParams);
             source.transform.position = position;
-            source.clip = clip;
-            source.loop = loop;
-            source.Play();
-            if (!activeSources.Contains(source))
-                activeSources.Add(source);
-            return source;
-        }
-        
-        public AudioSource PlaySFX(AudioClip clip, Vector3 position, SourceParams sourceParams, bool loop = false)
-        {
-            var source = AttachParams(audioSourcePool.GetAvailableSource(), sourceParams);
-            source.transform.position = position;
-            source.clip = clip;
+            source.clip = sdata.clip;
             source.loop = loop;
             source.Play();
             if (!activeSources.Contains(source))
@@ -85,14 +76,17 @@ namespace AudioScripts
 
         public void SkipTrack()
         {
-            
+            MusicPlaylist playlist = GameObject.FindObjectOfType<MusicPlaylist>();
+            if (playlist == null)
+                return;
+            SetMusicLayers(playlist.tracks[Array.IndexOf(playlist.tracks, playlist.currentTrack) + 1], playlist.MusicParamaters);
         }
         
-        public void PlayRandom(AudioClip[] clips, Vector3 position, SourceParams sourceParams = null)
+        public void PlayRandom(SoundData[] sdata, Vector3 position)
         {
-            if (clips.Length == 0) return;
-            var randomIndex = Random.Range(0, clips.Length);
-            PlaySFX(clips[randomIndex], position, sourceParams ?? defaultSFXParams);
+            if (sdata.Length == 0) return;
+            var randomIndex = Random.Range(0, sdata.Length);
+            PlaySFX(sdata[randomIndex], position);
         }
         
         public void SetMusicLayerActive(int index, bool active)
@@ -126,7 +120,7 @@ namespace AudioScripts
             audioSourcePool.ReleaseSource(source);
         }
         
-        public IEnumerator SourceFollow(AudioSource source, System.Func<Vector3> getTargetPosition)
+        public IEnumerator SourceFollow(AudioSource source, Func<Vector3> getTargetPosition)
         {
             while (source.isPlaying)
             {
@@ -160,5 +154,12 @@ namespace AudioScripts
             sourceParams.ApplyTo(src);
             return src;
         }
+    }
+
+    [Serializable]
+    public struct SoundData
+    {
+        public AudioClip clip;
+        public SourceParams sourceParams;
     }
 }
