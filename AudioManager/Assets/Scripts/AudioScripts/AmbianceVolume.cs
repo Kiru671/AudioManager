@@ -21,9 +21,7 @@ namespace AudioScripts
 
         private void Update()
         {
-            if (source == null)
-                return;
-            ReEnableOnPlayerClose();
+            //ReEnableOnPlayerClose();
         }
 
         private async void WaitForPlayerAndPlay()
@@ -50,6 +48,7 @@ namespace AudioScripts
             {
                 sdata.sourceParams.ApplyTo(source);
                 source.enabled = true;
+                WaitForPlayerAndPlay();
             }
         }
     }

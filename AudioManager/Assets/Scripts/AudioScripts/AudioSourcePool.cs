@@ -8,56 +8,63 @@ namespace AudioScripts
     {
         [SerializeField] private int poolSize = 10;
         [SerializeField] private int maxSize = 25;
-        private List<AudioSource> pool;
+        [SerializeField] private List<GameObject> pool;
 
         private void Awake()
         {
-            pool = new List<AudioSource>();
+            pool = new List<GameObject>();
 
             for (int i = 0; i < poolSize; i++)
             {
                 var src = new GameObject("AudioSource_" + i);
-                //src.transform.SetParent(transform); // Optional: organize hierarchy
                 AudioSource newSource = src.AddComponent<AudioSource>();
                 newSource.playOnAwake = false;
-                pool.Add(newSource);
+                pool.Add(newSource.gameObject);
+                newSource.gameObject.SetActive(false);
             }
         }
 
         public AudioSource GetAvailableSource()
         {
-            AudioSource availableSource = pool.FirstOrDefault(s => !s.isPlaying);
+            GameObject availableSource = pool.Find(s => s != null && !s.activeSelf);
 
             if (availableSource != null)
             {
-                //Debug.Log("AudioSourcePool: Reusing unused source.");
-                
-                return availableSource;
+                availableSource.SetActive(true);
+                return availableSource.GetComponent<AudioSource>();
             }
+
             if (pool.Count < maxSize)
             {
+                Debug.LogWarning("AudioSourcePool: No available sources found, creating a new one.");
+
                 var src = new GameObject("AudioSource_" + pool.Count);
-                src.transform.SetParent(transform);
-                availableSource = src.AddComponent<AudioSource>();
-                pool.Add(availableSource);
+                var newAudioSource = src.AddComponent<AudioSource>();
+                newAudioSource.playOnAwake = false;
+
+                src.SetActive(true); // activate immediately
+                pool.Add(src);
+
+                return newAudioSource;
             }
             else
             {
                 Debug.LogWarning("AudioSourcePool: Max pool size reached. Reusing first source.");
                 availableSource = pool[0];
+                availableSource.SetActive(true);
+                return availableSource.GetComponent<AudioSource>();
             }
-            
-            return availableSource;
         }
+
 
         public void ReleaseSource(AudioSource source)
         {
-            if (pool.Contains(source))
+            if (pool.Contains(source.gameObject))
             {
                 source.Stop();
                 source.clip = null;
                 source.loop = false;
-                source.enabled = false;
+                source.gameObject.SetActive(false);
             }
             else
             {
@@ -69,31 +76,32 @@ namespace AudioScripts
         {
             foreach (var src in pool)
             {
-                src.Stop();
-                ReleaseSource(src);
+                src.GetComponent<AudioSource>().Stop();
+                ReleaseSource(src.GetComponent<AudioSource>());
             }
-        }
-
-        /*public bool IsAudible(AudioSource source)
+        } 
+        public bool IsAudible(AudioSource audioSource, Transform playerTransform, float hearingThreshold = 0.01f)
         {
-            if (!source.enabled || !source.isPlaying)
+            if (audioSource == null || playerTransform == null)
                 return false;
-
-            float[] samples = new float[256];
-            source.GetOutputData(samples, 0);
-
-            float rms = 0f;
-            foreach (float sample in samples)
+       
+            if (!audioSource.isPlaying)
+                return false;
+       
+            float distance = Vector3.Distance(audioSource.transform.position, playerTransform.position);
+       
+            float volumeAtDistance = audioSource.volume;
+       
+            if (audioSource.spatialBlend > 0f)
             {
-                rms += sample * sample;
+                // Apply 3D rolloff attenuation manually (approximate)
+                float maxDistance = audioSource.maxDistance;
+                float minDistance = audioSource.minDistance;
+                float rolloffFactor = Mathf.Clamp01((distance - minDistance) / (maxDistance - minDistance));
+                volumeAtDistance *= 1f - rolloffFactor;
             }
-            rms = Mathf.Sqrt(rms / samples.Length);
-
-            float db = 20f * Mathf.Log10(rms + 1e-6f); // avoid log(0)
-            bool isAudible = db > -79f;
-
-            Debug.LogWarning("AudioSourcePool: Source is " + (isAudible ? "audible" : "inaudible") + $" (dB: {db})");
-            return isAudible;
-        }*/
+       
+            return volumeAtDistance > hearingThreshold;
+        }
     }
 }

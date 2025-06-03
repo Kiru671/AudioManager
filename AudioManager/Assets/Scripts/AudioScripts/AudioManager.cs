@@ -29,19 +29,20 @@ namespace AudioScripts
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            activeSources  = new List<AudioSource>();
+            activeSources = new List<AudioSource>();
         }
 
         public AudioSource PlaySFX(SoundData sdata, Vector3 position, bool loop = false)
         {
             var source = audioSourcePool.GetAvailableSource();
-            AttachParams(source, sdata.sourceParams ?? defaultSFXParams);
+            sdata.sourceParams?.ApplyTo(source);
             source.transform.position = position;
             source.clip = sdata.clip;
             source.loop = loop;
             source.Play();
             if (!activeSources.Contains(source))
                 activeSources.Add(source);
+            StartCoroutine(ReleaseSourceAfterPlay(source));
             return source;
         }
 
@@ -51,8 +52,9 @@ namespace AudioScripts
             beatManager.audioSource = musicLayerController.MusicLayers[(int)MusicLayerController.LayerType.Harmony];
 
             Debug.Log("AudioManager: Set music layers with BPM: " + track.bpm);
-            
-            var clips = new AudioClip[] { track.wholeTrack, track.percussion, track.bass, track.melody, track.harmony, track.other };
+
+            var clips = new AudioClip[]
+                { track.wholeTrack, track.percussion, track.bass, track.melody, track.harmony, track.other };
             for (int i = 0; i < clips.Length; i++)
             {
                 if (i < musicLayerController.MusicLayers.Count)
@@ -79,16 +81,17 @@ namespace AudioScripts
             MusicPlaylist playlist = GameObject.FindObjectOfType<MusicPlaylist>();
             if (playlist == null)
                 return;
-            SetMusicLayers(playlist.tracks[Array.IndexOf(playlist.tracks, playlist.currentTrack) + 1], playlist.MusicParamaters);
+            SetMusicLayers(playlist.tracks[Array.IndexOf(playlist.tracks, playlist.currentTrack) + 1],
+                playlist.MusicParamaters);
         }
-        
+
         public void PlayRandom(SoundData[] sdata, Vector3 position)
         {
             if (sdata.Length == 0) return;
             var randomIndex = Random.Range(0, sdata.Length);
             PlaySFX(sdata[randomIndex], position);
         }
-        
+
         public void SetMusicLayerActive(int index, bool active)
         {
             musicLayerController.SetLayerActive(index, active);
@@ -98,7 +101,7 @@ namespace AudioScripts
         {
             audioSourcePool.StopAll();
         }
-        
+
         public void StopWithFade(AudioSource source, float fadeTime = 1f)
         {
             StartCoroutine(FadeOutAndStop(source, fadeTime));
@@ -119,7 +122,7 @@ namespace AudioScripts
             source.loop = false;
             audioSourcePool.ReleaseSource(source);
         }
-        
+
         public IEnumerator SourceFollow(AudioSource source, Func<Vector3> getTargetPosition)
         {
             while (source.isPlaying)
@@ -128,8 +131,8 @@ namespace AudioScripts
                 yield return null;
             }
         }
-        
-        IEnumerator MonitorSources()
+
+        private IEnumerator MonitorSources()
         {
             var wait = new WaitForSeconds(1f); // Check once per second
             while (true)
@@ -137,25 +140,27 @@ namespace AudioScripts
                 for (int i = activeSources.Count - 1; i >= 0; i--)
                 {
                     var src = activeSources[i];
-
-                    // Remove non-looping SFX that have finished playing
-                    if (!src.loop && !src.isPlaying)
+                    
+                    if ((!src.loop && !src.isPlaying) ||
+                        audioSourcePool.IsAudible(src, Camera.main?.transform, 0.01f) == false)
                     {
-                        audioSourcePool.ReleaseSource(src);
-                        activeSources.RemoveAt(i);
+                        {
+                            activeSources.RemoveAt(i);
+                            audioSourcePool.ReleaseSource(src);
+                        }
                     }
                 }
                 yield return wait;
             }
         }
-
-        private AudioSource AttachParams(AudioSource src, SourceParams sourceParams)
+        private IEnumerator ReleaseSourceAfterPlay(AudioSource source)
         {
-            sourceParams.ApplyTo(src);
-            return src;
+            yield return new WaitWhile(() => source.isPlaying);
+            source.clip = null;
+            source.gameObject.SetActive(false);
         }
+        
     }
-
     [Serializable]
     public struct SoundData
     {

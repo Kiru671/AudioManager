@@ -1725,11 +1725,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9148131704967550237, guid: 0892e64b9ccdc49b3b71d1910688606a, type: 3}
       propertyPath: maxSize
-      value: 30
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 9148131704967550237, guid: 0892e64b9ccdc49b3b71d1910688606a, type: 3}
       propertyPath: poolSize
-      value: 20
+      value: 25
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
